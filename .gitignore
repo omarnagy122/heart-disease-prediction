@@ -1,0 +1,12 @@
+$__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.idea/
+.vscode/
+.ipynb_checkpoints/
+chroma_db/
+.DS_Store
+uploads/*
+!uploads/.gitkeep

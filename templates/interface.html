@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Disease Prediction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* === General Style Improvements === */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #ecf0f1;
+            --dark-text: #2c3e50;
+            --light-text: #ffffff;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --border-radius: 10px;
+            --box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #bbdefb);
+            color: var(--dark-text);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 1.6em;
+            margin-top: 30px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        h2::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 0;
+            width: 80px;
+            height: 3px;
+            background-color: var(--secondary-color);
+            border-radius: 2px;
+        }
+
+        /* === Form Field Improvements === */
+        .form-section {
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-text);
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+        input:focus, select:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .slider-container label {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        .slider-container input[type="range"] {
+            flex: 2;
+        }
+        .slider-value {
+            width: 70px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: var(--light-bg);
+            font-weight: 500;
+        }
+
+        /* === Button Improvements === */
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0,0,0,0.15);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn-danger {
+            background-color: var(--accent-color);
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        /* === Flash Messages === */
+        .flashes {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        .flashes li {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-weight: 500;
+        }
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* === Prediction Result Improvements === */
+        #prediction-result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-size: 1.1em;
+            line-height: 1.6;
+            display: none;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+            background-color: var(--light-bg);
+            border: 1px solid #ddd;
+        }
+        .result-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            margin-top: 20px;
+        }
+        .result-header {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .result-high-risk {
+            color: var(--accent-color);
+        }
+        .result-low-risk {
+            color: var(--success-color);
+        }
+        .probability-display {
+            font-size: 1.1em;
+            margin: 15px 0;
+        }
+        .probability-bar-container {
+            width: 100%;
+            height: 25px;
+            background-color: #e0e0e0;
+            border-radius: 12px;
+            margin: 15px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        .probability-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), var(--warning-color), var(--accent-color));
+            text-align: center;
+            line-height: 25px;
+            color: white;
+            font-size: 0.8em;
+            min-width: 40px;
+            transition: width 1.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        /* === File Upload Section === */
+        .file-upload-section {
+            background-color: var(--light-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border: 2px dashed #bdc3c7;
+        }
+        .file-upload-section p {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        /* === Section Spacing === */
+        .section {
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        /* === Responsive Design === */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            .slider-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .slider-container input[type="range"] {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🫀 Heart Disease Prediction</h1>
+    <h2>Predict Heart Disease Risk</h2>
+
+    <!-- Display Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for category, message in messages %}
+          <li class="flash-{{ category }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Manual Data Entry Section -->
+    <div class="section form-section">
+    <h2>Enter Data Manually:</h2>
+    <form id="manual-form" action="/predict" method="post">
+        <!-- Numerical Inputs with Sliders -->
+        <div class="form-group">
+            <div class="slider-container">
+                <label for="age">Age (29 - 77):</label>
+                <input type="range" id="age" name="age" min="29" max="77" value="50" oninput="document.getElementById('age_value').value = this.value">
+                <input type="number" id="age_value" class="slider-value" value="50" min="29" max="77" readonly>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <div class="slider-container">
+                <label for="resting_blood_pressure">Resting Blood Pressure (94 - 200):</label>
+                <input type="range" id="resting_blood_pressure" name="resting_blood_pressure" min="94" max="200" value="130" oninput="document.getElementById('bp_value').value = this.value">
+                <input type="number" id="bp_value" class="slider-value" value="130" min="94" max="200" readonly>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <div class="slider-container">
+                <label for="cholestoral">Cholesterol (126 - 564):</label>
+                <input type="range" id="cholestoral" name="cholestoral" min="126" max="564" value="250" oninput="document.getElementById('chol_value').value = this.value">
+                <input type="number" id="chol_value" class="slider-value" value="250" min="126" max="564" readonly>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <div class="slider-container">
+                <label for="Max_heart_rate">Max Heart Rate (71 - 202):</label>
+                <input type="range" id="Max_heart_rate" name="Max_heart_rate" min="71" max="202" value="150" oninput="document.getElementById('hr_value').value = this.value">
+                <input type="number" id="hr_value" class="slider-value" value="150" min="71" max="202" readonly>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <div class="slider-container">
+                <label for="oldpeak">ST Depression (0.0 - 6.2):</label>
+                <input type="range" id="oldpeak" name="oldpeak" min="0" max="6.2" step="0.1" value="1.0" oninput="document.getElementById('oldpeak_value').value = this.value">
+                <input type="number" id="oldpeak_value" class="slider-value" value="1.0" min="0" max="6.2" step="0.1" readonly>
+            </div>
+        </div>
+
+        <!-- Categorical Inputs -->
+        <div class="form-group">
+            <label for="sex">Sex:</label>
+            <select id="sex" name="sex" required>
+                <option value="">Select</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="chest_pain_type">Chest Pain Type:</label>
+            <select id="chest_pain_type" name="chest_pain_type" required>
+                <option value="">Select</option>
+                <option value="Typical angina">Typical angina</option>
+                <option value="Atypical angina">Atypical angina</option>
+                <option value="Non-anginal pain">Non-anginal pain</option>
+                <option value="Asymptomatic">Asymptomatic</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="fasting_blood_sugar">Fasting Blood Sugar > 120 mg/ml:</label>
+            <select id="fasting_blood_sugar" name="fasting_blood_sugar" required>
+                <option value="">Select</option>
+                <option value="Lower than 120 mg/ml">Lower than 120 mg/ml</option>
+                <option value="Greater than 120 mg/ml">Greater than 120 mg/ml</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="rest_ecg">Resting ECG Results:</label>
+            <select id="rest_ecg" name="rest_ecg" required>
+                <option value="">Select</option>
+                <option value="Normal">Normal</option>
+                <option value="ST-T wave abnormality">ST-T wave abnormality</option>
+                <option value="Left ventricular hypertrophy">Left ventricular hypertrophy</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="exercise_induced_angina">Exercise Induced Angina:</label>
+            <select id="exercise_induced_angina" name="exercise_induced_angina" required>
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="slope">Slope of Peak Exercise ST Segment:</label>
+            <select id="slope" name="slope" required>
+                <option value="">Select</option>
+                <option value="Upsloping">Upsloping</option>
+                <option value="Flat">Flat</option>
+                <option value="Downsloping">Downsloping</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="vessels_colored_by_flourosopy">Number of Major Vessels Colored:</label>
+            <select id="vessels_colored_by_flourosopy" name="vessels_colored_by_flourosopy" required>
+                <option value="">Select</option>
+                <option value="Zero">Zero</option>
+                <option value="One">One</option>
+                <option value="Two">Two</option>
+                <option value="Three">Three</option>
+                <option value="Four">Four</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="thalassemia">Thalassemia:</label>
+            <select id="thalassemia" name="thalassemia" required>
+                <option value="">Select</option>
+                <option value="Normal">Normal</option>
+                <option value="Fixed Defect">Fixed Defect</option>
+                <option value="Reversable Defect">Reversable Defect</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn">Predict</button>
+    </form>
+
+    <!-- Prediction Result Display Area -->
+    <div id="prediction-result"></div>
+    </div>
+
+    <!-- CSV File Upload Section -->
+    <div class="section file-upload-section">
+    <h2>Or Upload CSV File:</h2>
+    <form action="/predict_csv" method="post" enctype="multipart/form-data">
+        <label for="csv_file">Choose CSV File:</label>
+        <input type="file" id="csv_file" name="csv_file" accept=".csv" required>
+        <button type="submit" class="btn btn-danger">Upload and Predict</button>
+        <p><small>CSV file must contain columns: age, sex, chest_pain_type, resting_blood_pressure, cholestoral, fasting_blood_sugar, rest_ecg, Max_heart_rate, exercise_induced_angina, oldpeak, slope, vessels_colored_by_flourosopy, thalassemia</small></p>
+    </form>
+    </div>
+</div>
+
+<!-- JavaScript for Enhanced User Experience -->
+<script>
+document.getElementById('manual-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    // Show loading state
+    const resultDiv = document.getElementById('prediction-result');
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '<p>Analyzing...</p>';
+    resultDiv.style.backgroundColor = '#fff';
+    resultDiv.style.border = '1px solid #ddd';
+
+    fetch('/predict', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            resultDiv.innerHTML = `
+                <div class="result-card">
+                    <div class="result-header" style="color: var(--accent-color);">Error</div>
+                    <p>${data.error}</p>
+                </div>
+            `;
+        } else {
+            const prob = data.probability_class_1;
+            const riskLevel = prob > 0.7 ? 'High' : prob > 0.4 ? 'Medium' : 'Low';
+            const riskClass = prob > 0.7 ? 'result-high-risk' : 'result-low-risk';
+            const resultText = data.prediction === 1 ? 'Heart Disease Detected' : 'No Heart Disease';
+
+            resultDiv.innerHTML = `
+                <div class="result-card">
+                    <div class="result-header ${riskClass}">Result: ${resultText}</div>
+                    <div class="probability-display">Risk Level: <strong>${riskLevel}</strong></div>
+                    <div class="probability-display">Probability of Disease: <strong>${(prob * 100).toFixed(2)}%</strong></div>
+                    <div class="probability-bar-container">
+                        <div class="probability-bar" style="width: 0%;">0%</div>
+                    </div>
+                </div>
+            `;
+            
+            // Animate the bar
+            setTimeout(() => {
+                const bar = resultDiv.querySelector('.probability-bar');
+                bar.style.width = `${(prob * 100).toFixed(2)}%`;
+                bar.textContent = `${(prob * 100).toFixed(2)}%`;
+            }, 100);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultDiv.innerHTML = `
+            <div class="result-card">
+                <div class="result-header" style="color: var(--accent-color);">Error</div>
+                <p>Connection to server failed.</p>
+            </div>
+        `;
+    });
+});
+</script>
+
+</body>
+</html>
